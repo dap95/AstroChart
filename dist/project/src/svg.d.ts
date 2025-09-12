@@ -160,5 +160,6 @@ declare class SVG {
    * @return {SVGElement} text
    */
     text(txt: string, x: number, y: number, size: string, color: string): Element;
+    ophiuchus(x: number, y: number): Element;
 }
 export default SVG;

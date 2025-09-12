@@ -12,6 +12,14 @@ exports[`snapshot radix with default settings 1`] = `
     width="800"
     xmlns:xlink="http://www.w3.org/1999/xlink"
   >
+    <rect
+      data-bg="1"
+      fill="#fff"
+      height="800"
+      width="800"
+      x="0"
+      y="0"
+    />
     <g
       id="test-element-astrology"
     >
@@ -1927,6 +1935,14 @@ exports[`snapshot radix with scale 1`] = `
     width="800"
     xmlns:xlink="http://www.w3.org/1999/xlink"
   >
+    <rect
+      data-bg="1"
+      fill="#fff"
+      height="800"
+      width="800"
+      x="0"
+      y="0"
+    />
     <g
       id="test-element-astrology"
     >

@@ -15,6 +15,47 @@ A free and open-source TypeScript library for generating SVG charts to display p
 ## Documentation
 A documentation is in progress, please checkout [website](https://astrodraw.github.io/).
 
+### Geometry: Zodiac systems (equal12/true12/true13)
+
+You can choose how zodiac segments are drawn using the `GEOMETRY` setting:
+
+```ts
+import Chart from './project/src/chart'
+import default_settings from './project/src/settings'
+
+// Choose a zodiac system: 'equal12' | 'true12' | 'true13'
+const settings = {
+  ...default_settings,
+  GEOMETRY: { zodiac_system: 'true13' }
+}
+
+const chart = new Chart('chart-root', 800, 800, settings)
+chart.radix({
+  planets: { Sun: [12], Moon: [123] },
+  cusps: [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330]
+})
+```
+
+- `equal12` keeps 12×30° segments (current behavior)
+- `true12` uses constellation spans with Ophiuchus merged into Scorpio (12 signs)
+- `true13` uses constellation spans with Ophiuchus as a separate segment (13 signs)
+
+If you want full control, you can pass explicit segments:
+
+```ts
+const settings = {
+  ...default_settings,
+  GEOMETRY: {
+    zodiac: {
+      segments: [
+        { id: 'Aries', start_deg: 0, end_deg: 25 },
+        // ... your segments that sum to 360°
+      ]
+    }
+  }
+}
+```
+
 ## Contribution
 Contribution is always welcome. You can contribute in different ways:
  - Start or participate in the [discussions](https://github.com/AstroDraw/AstroChart/discussions)

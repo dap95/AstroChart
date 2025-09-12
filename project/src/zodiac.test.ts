@@ -1,5 +1,6 @@
 import default_settings from "./settings";
 import Zodiac from "./zodiac";
+import { segmentsForSystem, EQUAL12_SEGMENTS, TRUE12_SEGMENTS, TRUE13_SEGMENTS } from "./zodiac";
 
 describe('getSign', () => {
   const cusps = [296, 350, 30, 56, 75, 94, 116, 170, 210, 236, 255, 274];
@@ -174,5 +175,43 @@ describe('dignities', () => {
     expect( reporter.getDignities( {name:"Pluto", position:180} )).toStrictEqual([default_settings.DIGNITIES_FALL] );																						
     expect( reporter.getDignities( {name:"Pluto", position:0} )).toStrictEqual([default_settings.DIGNITIES_EXALTATION] );
     expect( reporter.getDignities( {name:"Pluto", position:18}, [{"name":"Pluto", "position":18, "orbit":2}] )).toStrictEqual([default_settings.DIGNITIES_EXALTATION, default_settings.DIGNITIES_EXACT_EXALTATION] );
+  })
+})
+
+describe('segmentsForSystem', () => {
+  function widthSum(segments: { start_deg: number; end_deg: number }[]): number {
+    return segments.reduce((acc, s) => acc + (s.end_deg - s.start_deg), 0)
+  }
+
+  test('equal12 -> 12 x 30° spanning 0..360', () => {
+    const segs = segmentsForSystem('equal12')
+    expect(segs.length).toBe(12)
+    expect(widthSum(segs)).toBe(360)
+    expect(segs[0].start_deg).toBe(0)
+    expect(segs[11].end_deg).toBe(360)
+    segs.forEach(s => expect(s.end_deg - s.start_deg).toBe(30))
+    expect(segs).toStrictEqual(EQUAL12_SEGMENTS)
+  })
+
+  test('true12 -> 12 signs, Scorpio includes Ophiuchus (28°), no Ophiuchus id', () => {
+    const segs = segmentsForSystem('true12')
+    expect(segs.length).toBe(12)
+    expect(widthSum(segs)).toBe(360)
+    expect(segs.some(s => s.id === 'Ophiuchus')).toBe(false)
+    const scorpio = segs.find(s => s.id === 'Scorpio')!
+    expect(scorpio.end_deg - scorpio.start_deg).toBe(28)
+    expect(segs).toStrictEqual(TRUE12_SEGMENTS)
+  })
+
+  test('true13 -> 13 signs, includes Ophiuchus (18°), Scorpio is 10°', () => {
+    const segs = segmentsForSystem('true13')
+    expect(segs.length).toBe(13)
+    expect(widthSum(segs)).toBe(360)
+    const ophiuchus = segs.find(s => s.id === 'Ophiuchus')!
+    const scorpio = segs.find(s => s.id === 'Scorpio')!
+    expect(ophiuchus != null).toBe(true)
+    expect(ophiuchus.end_deg - ophiuchus.start_deg).toBe(18)
+    expect(scorpio.end_deg - scorpio.start_deg).toBe(10)
+    expect(segs).toStrictEqual(TRUE13_SEGMENTS)
   })
 })

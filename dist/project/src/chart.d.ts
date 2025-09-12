@@ -2,6 +2,8 @@ import type { Settings } from './settings';
 import Radix from './radix';
 import type { AstroData } from './radix';
 import SVG from './svg';
+import type { ZodiacSegment, ZodiacSystem } from './zodiac';
+import { DEFAULT_ZODIAC_SYSTEM } from './zodiac';
 /**
  * Displays astrology charts.
  *
@@ -47,3 +49,18 @@ declare class Chart {
     calibrate(): Chart;
 }
 export default Chart;
+export interface GeometryZodiac {
+    segments?: ZodiacSegment[];
+}
+export interface GeometryOptions {
+    zodiac_system?: ZodiacSystem;
+    zodiac?: GeometryZodiac;
+    zodiac_offset_deg?: number;
+}
+export interface NormalizedGeometry {
+    system: ZodiacSystem;
+    segments: ZodiacSegment[];
+    offset_deg: number;
+}
+export declare function normalizeGeometry(geometry?: GeometryOptions | null): NormalizedGeometry;
+export { DEFAULT_ZODIAC_SYSTEM };

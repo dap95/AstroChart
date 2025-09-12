@@ -1,4 +1,5 @@
 import type SVG from './svg';
+import type { ZodiacSystem, ZodiacSegment } from './zodiac';
 export interface AspectData {
     degree: number;
     orbit: number;
@@ -12,6 +13,7 @@ export interface Dignity {
 }
 export interface Settings {
     SYMBOL_SCALE: number;
+    SYMBOL_POINTS_SCALE?: number;
     COLOR_BACKGROUND: string;
     POINTS_COLOR: string;
     POINTS_TEXT_SIZE: number;
@@ -98,6 +100,7 @@ export interface Settings {
     COLOR_AQUARIUS: string;
     COLOR_PISCES: string;
     COLORS_SIGNS: string[];
+    COLORS_SIGNS_BY_ID?: Record<string, string>;
     CUSTOM_SYMBOL_FN: null | ((name: string, x: number, y: number, context: SVG) => Element);
     SHIFT_IN_DEGREES: number;
     STROKE_ONLY: boolean;
@@ -113,6 +116,14 @@ export interface Settings {
     DIGNITIES_EXACT_EXALTATION_DEFAULT: Dignity[];
     ANIMATION_CUSPS_ROTATION_SPEED: number;
     DEBUG: boolean;
+    GEOMETRY?: GeometryOptions;
+}
+export interface GeometryZodiac {
+    segments?: ZodiacSegment[];
+}
+export interface GeometryOptions {
+    zodiac_system?: ZodiacSystem;
+    zodiac?: GeometryZodiac;
 }
 declare const default_settings: Settings;
 export default default_settings;

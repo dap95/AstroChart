@@ -342,3 +342,74 @@ class Zodiac {
 }
 
 export default Zodiac
+
+// Zodiac systems and segments utilities
+
+export type ZodiacSystem = 'equal12' | 'true12' | 'true13'
+
+export interface ZodiacSegment { id: string; start_deg: number; end_deg: number }
+
+export const DEFAULT_ZODIAC_SYSTEM: ZodiacSystem = 'equal12'
+
+// Helper to build continuous segments from a list of widths and ids
+function buildSegments (ids: string[], widths: number[]): ZodiacSegment[] {
+  const segments: ZodiacSegment[] = []
+  let cursor = 0
+  for (let i = 0; i < ids.length; i++) {
+    const width = widths[i]
+    const start = cursor
+    const end = cursor + width
+    segments.push({ id: ids[i], start_deg: start, end_deg: end })
+    cursor = end
+  }
+  return segments
+}
+
+// Equal 12 signs, each 30 degrees
+export const EQUAL12_SEGMENTS: ZodiacSegment[] = (() => {
+  const ids = [
+    'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
+    'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
+  ]
+  const widths = new Array(ids.length).fill(30)
+  return buildSegments(ids, widths)
+})()
+
+// True constellations with Ophiuchus separated (13 signs)
+// Widths chosen to reflect commonly cited constellation spans along the ecliptic
+// and sum to 360 degrees.
+export const TRUE13_SEGMENTS: ZodiacSegment[] = (() => {
+  const ids = [
+    'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
+    'Libra', 'Scorpio', 'Ophiuchus', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
+  ]
+  const widths = [
+    24.3, 37.3, 27.7, 19.8, 35.1, 43.7, 23.0, 7.4, 19.5, 33.0, 27.4, 24.6, 37.2
+  ]
+  return buildSegments(ids, widths)
+})()
+
+// True constellations but Ophiuchus merged into Scorpio (12 signs)
+export const TRUE12_SEGMENTS: ZodiacSegment[] = (() => {
+  const ids = [
+    'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
+    'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
+  ]
+  // Merge Ophiuchus (18°) into Scorpio (10°) => Scorpio 28°
+  const widths = [
+    24.3, 37.3, 27.7, 19.8, 35.1, 43.7, 23.0, 26.9, 33.0, 27.4, 24.6, 37.2
+  ]
+  return buildSegments(ids, widths)
+})()
+
+export function segmentsForSystem (system: ZodiacSystem): ZodiacSegment[] {
+  switch (system) {
+    case 'true13':
+      return TRUE13_SEGMENTS.slice()
+    case 'true12':
+      return TRUE12_SEGMENTS.slice()
+    case 'equal12':
+    default:
+      return EQUAL12_SEGMENTS.slice()
+  }
+}

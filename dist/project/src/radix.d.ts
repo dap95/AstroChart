@@ -15,6 +15,9 @@ export interface LocatedPoint {
 export interface AstroData {
     planets: Points;
     cusps: number[];
+    angles?: {
+        MC?: number;
+    };
 }
 /**
    * Radix charts.
