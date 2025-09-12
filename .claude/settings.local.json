@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/dap/PycharmProjects/Zion-AstroEngine/app/**)",
+      "Read(//Users/dap/PycharmProjects/Zion-AstroEngine/wheel-renderer/**)",
+      "Bash(npm run build:*)",
+      "Read(//private/tmp/**)",
+      "Bash(lsof:*)",
+      "Bash(kill:*)",
+      "Bash(node server.js)",
+      "Bash(curl:*)",
+      "Read(//Users/dap/PycharmProjects/Zion-AstroEngine/**)",
+      "Bash(npm test)",
+      "Bash(/Users/dap/PycharmProjects/Zion-AstroEngine/.venv/bin/python -m pytest -q app/tests/test_pdf_endpoints.py)",
+      "Bash(ASTROCHART_UMD=\"/Volumes/BES/app/astroengine/AstroChart/dist/astrochart.js\" node server.js)",
+      "Bash(/Users/dap/PycharmProjects/Zion-AstroEngine/.venv/bin/python -m pytest -q pdf_service/app/tests/test_pdf_endpoints.py)",
+      "Bash(./restart_all.sh)",
+      "Bash(bash:*)",
+      "Read(//Volumes/BES/Sephora/Downloads/dossier sans titre/AstroChart-main/**)",
+      "Read(//tmp/**)",
+      "Read(//Users/dap/PycharmProjects/Utils/**)",
+      "Bash(python:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
