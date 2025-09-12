@@ -2,6 +2,7 @@ import Zodiac from './zodiac'
 import AspectCalculator from './aspect'
 import type { FormedAspect } from './aspect'
 import Transit from './transit'
+import { segmentsForSystem, DEFAULT_ZODIAC_SYSTEM } from './zodiac'
 import {
   validate
   , radiansToDegree
@@ -20,6 +21,7 @@ export interface LocatedPoint { name: string; x: number; y: number; r: number; a
 export interface AstroData {
   planets: Points
   cusps: number[]
+  angles?: { MC?: number }
 }
 
 /**
@@ -110,24 +112,40 @@ class Radix {
   drawUniverse(): void {
     const universe = this.universe
     const wrapper = getEmptyWrapper(universe, this.paper.root.id + '-' + this.settings.ID_RADIX + '-' + this.settings.ID_SIGNS, this.paper.root.id)
+    
+    const geom = this.settings.GEOMETRY
+    const system = geom != null && geom.zodiac_system != null ? geom.zodiac_system : DEFAULT_ZODIAC_SYSTEM
+    const segments = geom != null && geom.zodiac != null && Array.isArray(geom.zodiac.segments) && geom.zodiac.segments.length > 0
+      ? geom.zodiac.segments
+      : segmentsForSystem(system)
+    const offsetDeg = (geom as any)?.zodiac_offset_deg != null ? Number((geom as any).zodiac_offset_deg) : 0
 
-    // colors
-    for (let i = 0, step = 30, start = this.shift, len = this.settings.COLORS_SIGNS.length; i < len; i++) {
-      const segment = this.paper.segment(this.cx, this.cy, this.radius, start, start + step, this.radius - this.radius / this.settings.INNER_CIRCLE_RADIUS_RATIO)
-      segment.setAttribute('fill', this.settings.STROKE_ONLY ? 'none' : this.settings.COLORS_SIGNS[i])
+    // draw colored sectors according to segments
+    for (let i = 0; i < segments.length; i++) {
+      const seg = segments[i]
+      const start = seg.start_deg + this.shift + offsetDeg
+      const end = seg.end_deg + this.shift + offsetDeg
+      const segment = this.paper.segment(this.cx, this.cy, this.radius, start, end, this.radius - this.radius / this.settings.INNER_CIRCLE_RADIUS_RATIO)
+      const byId = this.settings.COLORS_SIGNS_BY_ID
+      const color = byId != null && byId[seg.id] != null
+        ? byId[seg.id]
+        : this.settings.COLORS_SIGNS[i % this.settings.COLORS_SIGNS.length]
+      segment.setAttribute('fill', this.settings.STROKE_ONLY ? 'none' : color)
       segment.setAttribute('id', this.paper.root.id + '-' + this.settings.ID_RADIX + '-' + this.settings.ID_SIGNS + '-' + i)
       segment.setAttribute('stroke', this.settings.STROKE_ONLY ? this.settings.CIRCLE_COLOR : 'none')
       segment.setAttribute('stroke-width', this.settings.STROKE_ONLY ? '1' : '0')
       wrapper.appendChild(segment)
-
-      start += step
     }
 
-    // signs
-    for (let i = 0, step = 30, start = 15 + this.shift, len = this.settings.SYMBOL_SIGNS.length; i < len; i++) {
-      const position = getPointPosition(this.cx, this.cy, this.radius - (this.radius / this.settings.INNER_CIRCLE_RADIUS_RATIO) / 2, start, this.settings)
-      wrapper.appendChild(this.paper.getSymbol(this.settings.SYMBOL_SIGNS[i], position.x, position.y))
-      start += step
+    // draw sign symbols centered in each segment
+    for (let i = 0; i < segments.length; i++) {
+      const seg = segments[i]
+      const center = (seg.start_deg + seg.end_deg) / 2
+      const angle = center + this.shift + offsetDeg
+      const position = getPointPosition(this.cx, this.cy, this.radius - (this.radius / this.settings.INNER_CIRCLE_RADIUS_RATIO) / 2, angle, this.settings)
+      const id = seg.id
+      const symbolName = id
+      wrapper.appendChild(this.paper.getSymbol(symbolName, position.x, position.y))
     }
   }
 
@@ -152,7 +170,8 @@ class Radix {
     for (const planet in this.data.planets) {
       if (this.data.planets.hasOwnProperty(planet)) {
         const position = getPointPosition(this.cx, this.cy, this.pointRadius, this.data.planets[planet][0] + this.shift, this.settings)
-        const point = { name: planet, x: position.x, y: position.y, r: (this.settings.COLLISION_RADIUS * this.settings.SYMBOL_SCALE), angle: this.data.planets[planet][0] + this.shift, pointer: this.data.planets[planet][0] + this.shift }
+        const scale = this.settings.SYMBOL_POINTS_SCALE || this.settings.SYMBOL_SCALE
+        const point = { name: planet, x: position.x, y: position.y, r: (this.settings.COLLISION_RADIUS * scale), angle: this.data.planets[planet][0] + this.shift, pointer: this.data.planets[planet][0] + this.shift }
         this.locatedPoints = assemble(this.locatedPoints, point, { cx: this.cx, cy: this.cy, r: this.pointRadius }, this.settings)
       }
     }
@@ -180,7 +199,11 @@ class Radix {
       }
 
       // draw symbol
+      const originalScale = this.settings.SYMBOL_SCALE
+      const pointsScale = this.settings.SYMBOL_POINTS_SCALE
+      if (pointsScale && pointsScale !== originalScale) this.settings.SYMBOL_SCALE = pointsScale
       const symbol = this.paper.getSymbol(point.name, point.x, point.y)
+      if (pointsScale && pointsScale !== originalScale) this.settings.SYMBOL_SCALE = originalScale
       symbol.setAttribute('id', this.paper.root.id + '-' + this.settings.ID_RADIX + '-' + this.settings.ID_POINTS + '-' + point.name)
       wrapper.appendChild(symbol)
 
@@ -213,17 +236,18 @@ class Radix {
     const universe = this.universe
     const wrapper = getEmptyWrapper(universe, this.paper.root.id + '-' + this.settings.ID_RADIX + '-' + this.settings.ID_AXIS, this.paper.root.id)
 
-    const axisRadius = this.radius + ((this.radius / this.settings.INNER_CIRCLE_RADIUS_RATIO) / 4)
+    // Place labels just outside the outer ring
+    const axisRadius = this.radius
 
     const AS = 0
     const IC = 3
     const DC = 6
-    const MC = 9
+    const MC_INDEX = 9
     let overlapLine
     let startPosition
     let endPosition
 
-    [AS, IC, DC, MC].forEach(function (i) {
+    ;[AS, IC, DC, MC_INDEX].forEach(function (i) {
       let textPosition
       // overlap
       startPosition = getPointPosition(this.cx, this.cy, this.radius, this.data.cusps[i] + this.shift, this.settings)
@@ -233,31 +257,22 @@ class Radix {
       overlapLine.setAttribute('stroke-width', (this.settings.SYMBOL_AXIS_STROKE * this.settings.SYMBOL_SCALE))
       wrapper.appendChild(overlapLine)
 
-      // As
+      // As - position using cusps data from astrological engine + shift (like planets)
       if (i === AS) {
-        // Text
-        textPosition = getPointPosition(this.cx, this.cy, axisRadius + (20 * this.settings.SYMBOL_SCALE), this.data.cusps[i] + this.shift, this.settings)
+        const asAngle = this.data.cusps[AS]
+        const textOffset = 10 * this.settings.SYMBOL_SCALE  // Reduced from 25 to 10
+        textPosition = getPointPosition(this.cx, this.cy, this.radius + textOffset, asAngle + this.shift, this.settings)
         wrapper.appendChild(this.paper.getSymbol(this.settings.SYMBOL_AS, textPosition.x, textPosition.y))
       }
 
-      // Ds
-      if (i === DC) {
-        // Text
-        textPosition = getPointPosition(this.cx, this.cy, axisRadius + (2 * this.settings.SYMBOL_SCALE), this.data.cusps[i] + this.shift, this.settings)
-        wrapper.appendChild(this.paper.getSymbol(this.settings.SYMBOL_DS, textPosition.x, textPosition.y))
-      }
-
-      // Ic
-      if (i === IC) {
-        // Text
-        textPosition = getPointPosition(this.cx, this.cy, axisRadius + (10 * this.settings.SYMBOL_SCALE), this.data.cusps[i] - 2 + this.shift, this.settings)
-        wrapper.appendChild(this.paper.getSymbol(this.settings.SYMBOL_IC, textPosition.x, textPosition.y))
-      }
-
-      // Mc
-      if (i === MC) {
-        // Text
-        textPosition = getPointPosition(this.cx, this.cy, axisRadius + (10 * this.settings.SYMBOL_SCALE), this.data.cusps[i] + 2 + this.shift, this.settings)
+      // Mc - position using angles data from astrological engine + shift (like planets)
+      if (i === MC_INDEX) {
+        // Use MC from angles if provided (direct number from engine), fallback to cusps
+        const mcAngle = (this.data.angles && typeof this.data.angles.MC === 'number')
+          ? this.data.angles.MC
+          : this.data.cusps[MC_INDEX]
+        const textOffset = 10 * this.settings.SYMBOL_SCALE  // Reduced from 25 to 10
+        textPosition = getPointPosition(this.cx, this.cy, this.radius + textOffset, mcAngle + this.shift, this.settings)
         wrapper.appendChild(this.paper.getSymbol(this.settings.SYMBOL_MC, textPosition.x, textPosition.y))
       }
     }, this)

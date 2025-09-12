@@ -43,6 +43,16 @@ class SVG {
     this.width = width
     this.height = height
 
+    // Insert background rectangle using settings.COLOR_BACKGROUND (defaults to white)
+    const bg = document.createElementNS(svg.namespaceURI, 'rect')
+    bg.setAttribute('data-bg', '1')
+    bg.setAttribute('x', '0')
+    bg.setAttribute('y', '0')
+    bg.setAttribute('width', width.toString())
+    bg.setAttribute('height', height.toString())
+    bg.setAttribute('fill', this.settings.COLOR_BACKGROUND || '#fff')
+    svg.insertBefore(bg, wrapper)
+
     this.context = this
   }
 
@@ -72,6 +82,10 @@ class SVG {
         return this.chiron(x, y)
       case this.settings.SYMBOL_LILITH:
         return this.lilith(x, y)
+      case 'NodeTrueNorth':
+      case 'NorthNode':
+      case 'TrueNode':
+      case 'NNode':
       case this.settings.SYMBOL_NNODE:
         return this.nnode(x, y)
       case this.settings.SYMBOL_SNODE:
@@ -102,6 +116,8 @@ class SVG {
         return this.aquarius(x, y)
       case this.settings.SYMBOL_PISCES:
         return this.pisces(x, y)
+      case 'Ophiuchus':
+        return this.ophiuchus(x, y)
       case this.settings.SYMBOL_AS:
         return this.ascendant(x, y)
       case this.settings.SYMBOL_DS:
@@ -134,6 +150,8 @@ class SVG {
         return this.number11(x, y)
       case this.settings.SYMBOL_CUSP_12:
         return this.number12(x, y)
+      case 'Ophiuchus':
+        return this.ophiuchus(x, y)
       default: {
         const unknownPoint = this.circle(x, y, 8)
         unknownPoint.setAttribute('stroke', '#ffff00')
@@ -1071,17 +1089,20 @@ class SVG {
  * Draw As symbol
  */
   ascendant(x: number, y: number): Element {
-    // center symbol
-    const xShift = 12 // px
-    const yShift = -2 // px
+    // minimal shifts to keep glyph centered
+    const xShift = 0
+    const yShift = 0
     x = Math.round(x + (xShift * this.settings.SYMBOL_SCALE))
     y = Math.round(y + (yShift * this.settings.SYMBOL_SCALE))
 
+    // Use simple translation and scale - don't move the origin to compensate for scale
+    const transform = 'translate(' + x + ',' + y + ') scale(' + this.settings.SYMBOL_SCALE + ')'
+
     const wrapper = document.createElementNS(this.context.root.namespaceURI, 'g')
-    wrapper.setAttribute('transform', 'translate(' + (-x * (this.settings.SYMBOL_SCALE - 1)) + ',' + (-y * (this.settings.SYMBOL_SCALE - 1)) + ') scale(' + this.settings.SYMBOL_SCALE + ')')
+    wrapper.setAttribute('transform', transform)
 
     const node = document.createElementNS(this.context.root.namespaceURI, 'path')
-    node.setAttribute('d', 'm ' + x + ', ' + y + ' -0.563078,-1.1261527 -1.689228,-0.5630765 -1.689229,0 -1.68923,0.5630765 -0.563076,1.1261527 0.563076,1.12615272 1.126154,0.56307636 2.815381,0.56307635 1.126152,0.56307647 0.563078,1.1261526 0,0.5630763 -0.563078,1.1261528 -1.689228,0.5630764 -1.689229,0 -1.68923,-0.5630764 -0.563076,-1.1261528 m -6.756916,-10.135374 -4.504611,11.8246032 m 4.504611,-11.8246032 4.504611,11.8246032 m -7.3199925,-3.94153457 5.6307625,0')
+    node.setAttribute('d', 'm 0, 0 -0.563078,-1.1261527 -1.689228,-0.5630765 -1.689229,0 -1.68923,0.5630765 -0.563076,1.1261527 0.563076,1.12615272 1.126154,0.56307636 2.815381,0.56307635 1.126152,0.56307647 0.563078,1.1261526 0,0.5630763 -0.563078,1.1261528 -1.689228,0.5630764 -1.689229,0 -1.68923,-0.5630764 -0.563076,-1.1261528 m -6.756916,-10.135374 -4.504611,11.8246032 m 4.504611,-11.8246032 4.504611,11.8246032 m -7.3199925,-3.94153457 5.6307625,0')
     node.setAttribute('stroke', this.settings.SYMBOL_AXIS_FONT_COLOR)
     node.setAttribute('stroke-width', (this.settings.SYMBOL_AXIS_STROKE * this.settings.SYMBOL_SCALE).toString())
     node.setAttribute('fill', 'none')
@@ -1124,11 +1145,14 @@ class SVG {
     x = Math.round(x + (xShift * this.settings.SYMBOL_SCALE))
     y = Math.round(y + (yShift * this.settings.SYMBOL_SCALE))
 
+    // Use simple translation and scale - don't move the origin to compensate for scale
+    const transform = 'translate(' + x + ',' + y + ') scale(' + this.settings.SYMBOL_SCALE + ')'
+
     const wrapper = document.createElementNS(this.context.root.namespaceURI, 'g')
-    wrapper.setAttribute('transform', 'translate(' + (-x * (this.settings.SYMBOL_SCALE - 1)) + ',' + (-y * (this.settings.SYMBOL_SCALE - 1)) + ') scale(' + this.settings.SYMBOL_SCALE + ')')
+    wrapper.setAttribute('transform', transform)
 
     const node = document.createElementNS(this.context.root.namespaceURI, 'path')
-    node.setAttribute('d', 'm ' + x + ', ' + y + ' -1.004085,-1.0040845 -1.004084,-0.5020423 -1.506127,0 -1.004085,0.5020423 -1.004084,1.0040845 -0.502043,1.50612689 0,1.00408458 0.502043,1.50612683 1.004084,1.0040846 1.004085,0.5020423 1.506127,0 1.004084,-0.5020423 1.004085,-1.0040846 m -17.57148,-9.0367612 0,10.5428881 m 0,-10.5428881 4.016338,10.5428881 m 4.016338,-10.5428881 -4.016338,10.5428881 m 4.016338,-10.5428881 0,10.5428881')
+    node.setAttribute('d', 'm 0, 0 -1.004085,-1.0040845 -1.004084,-0.5020423 -1.506127,0 -1.004085,0.5020423 -1.004084,1.0040845 -0.502043,1.50612689 0,1.00408458 0.502043,1.50612683 1.004084,1.0040846 1.004085,0.5020423 1.506127,0 1.004084,-0.5020423 1.004085,-1.0040846 m -17.57148,-9.0367612 0,10.5428881 m 0,-10.5428881 4.016338,10.5428881 m 4.016338,-10.5428881 -4.016338,10.5428881 m 4.016338,-10.5428881 0,10.5428881')
     node.setAttribute('stroke', this.settings.SYMBOL_AXIS_FONT_COLOR)
     node.setAttribute('stroke-width', (this.settings.SYMBOL_AXIS_STROKE * this.settings.SYMBOL_SCALE).toString())
     node.setAttribute('fill', 'none')
@@ -1539,6 +1563,14 @@ class SVG {
     text.appendChild(document.createTextNode(txt))
     text.setAttribute('transform', 'translate(' + (-x * (this.settings.SYMBOL_SCALE - 1)) + ',' + (-y * (this.settings.SYMBOL_SCALE - 1)) + ') scale(' + this.settings.SYMBOL_SCALE + ')')
     return text
+  }
+
+  ophiuchus(x: number, y: number): Element {
+    const wrapper = document.createElementNS(this.context.root.namespaceURI, 'g')
+    const fontSize = String(this.settings.POINTS_TEXT_SIZE * 1.6)
+    const node = this.text('\u26CE', x, y, fontSize, this.settings.SIGNS_COLOR)
+    wrapper.appendChild(node)
+    return wrapper
   }
 }
 

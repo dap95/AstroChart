@@ -4,6 +4,8 @@ import Radix from './radix'
 import type { AstroData } from './radix'
 import SVG from './svg'
 import { getPointPosition } from './utils'
+import type { ZodiacSegment, ZodiacSystem } from './zodiac'
+import { segmentsForSystem, DEFAULT_ZODIAC_SYSTEM } from './zodiac'
 /**
  * Displays astrology charts.
  *
@@ -123,3 +125,38 @@ class Chart {
 }
 
 export default Chart
+
+// Geometry normalization utilities
+export interface GeometryZodiac {
+  segments?: ZodiacSegment[]
+}
+
+export interface GeometryOptions {
+  zodiac_system?: ZodiacSystem
+  zodiac?: GeometryZodiac
+  zodiac_offset_deg?: number
+}
+
+export interface NormalizedGeometry {
+  system: ZodiacSystem
+  segments: ZodiacSegment[]
+  offset_deg: number
+}
+
+export function normalizeGeometry (geometry?: GeometryOptions | null): NormalizedGeometry {
+  const hasCustomSegments = geometry != null && geometry.zodiac != null && Array.isArray(geometry.zodiac.segments) && geometry.zodiac.segments.length > 0
+  if (hasCustomSegments) {
+    // Do not alter explicitly provided segments
+    return {
+      system: (geometry != null && geometry.zodiac_system != null) ? geometry.zodiac_system : DEFAULT_ZODIAC_SYSTEM,
+      segments: geometry!.zodiac!.segments as ZodiacSegment[],
+      offset_deg: geometry?.zodiac_offset_deg != null ? Number(geometry.zodiac_offset_deg) : 0
+    }
+  }
+
+  const system = (geometry != null && geometry.zodiac_system != null) ? geometry.zodiac_system : DEFAULT_ZODIAC_SYSTEM
+  const segments = segmentsForSystem(system)
+  return { system, segments, offset_deg: geometry?.zodiac_offset_deg != null ? Number(geometry.zodiac_offset_deg) : 0 }
+}
+
+export { DEFAULT_ZODIAC_SYSTEM }

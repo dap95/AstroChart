@@ -61,3 +61,14 @@ declare class Zodiac {
     hasConjunction(planetPosition: number, pointPosition: number, orbit: number): boolean;
 }
 export default Zodiac;
+export type ZodiacSystem = 'equal12' | 'true12' | 'true13';
+export interface ZodiacSegment {
+    id: string;
+    start_deg: number;
+    end_deg: number;
+}
+export declare const DEFAULT_ZODIAC_SYSTEM: ZodiacSystem;
+export declare const EQUAL12_SEGMENTS: ZodiacSegment[];
+export declare const TRUE13_SEGMENTS: ZodiacSegment[];
+export declare const TRUE12_SEGMENTS: ZodiacSegment[];
+export declare function segmentsForSystem(system: ZodiacSystem): ZodiacSegment[];
