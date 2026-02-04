@@ -140,7 +140,14 @@ class Radix {
     // draw sign symbols centered in each segment
     for (let i = 0; i < segments.length; i++) {
       const seg = segments[i]
-      const center = (seg.start_deg + seg.end_deg) / 2
+      // Handle wrap-around: if end < start, segment crosses 0°
+      let endDeg = seg.end_deg
+      if (endDeg < seg.start_deg) {
+        endDeg += 360
+      }
+      const rawCenter = (seg.start_deg + endDeg) / 2
+      // Normalize center to [0, 360)
+      const center = ((rawCenter % 360) + 360) % 360
       const angle = center + this.shift + offsetDeg
       const position = getPointPosition(this.cx, this.cy, this.radius - (this.radius / this.settings.INNER_CIRCLE_RADIUS_RATIO) / 2, angle, this.settings)
       const id = seg.id
@@ -247,6 +254,16 @@ class Radix {
     let startPosition
     let endPosition
 
+    // ============================================================================
+    // ⚠️ IMPORTANT - SEULEMENT AS ET MC SONT AFFICHÉS ⚠️
+    // ============================================================================
+    // ✅ DS et IC ont été supprimés le 12 sept 2024 (merge "13 constellations")
+    // ✅ MC utilise angles.MC de l'Engine API (ligne 271), PAS cusps[9]
+    // ✅ AS utilise cusps[0] (ligne 262)
+    // ✅ Après modification: cd /root/opt/app/AstroChart && npm run build
+    // ✅ Puis: docker-compose up -d --build wheel-renderer
+    // 📖 Voir: /root/opt/app/Zion-AstroEngine/WHEEL_RENDERER_GUIDE.md
+    // ============================================================================
     ;[AS, IC, DC, MC_INDEX].forEach(function (i) {
       let textPosition
       // overlap
