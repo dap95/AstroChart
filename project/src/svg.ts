@@ -82,6 +82,12 @@ class SVG {
         return this.chiron(x, y)
       case this.settings.SYMBOL_LILITH:
         return this.lilith(x, y)
+      case this.settings.SYMBOL_JUNO:
+      case 'Juno':
+        return this.juno(x, y)
+      case this.settings.SYMBOL_VESTA:
+      case 'Vesta':
+        return this.vesta(x, y)
       case 'NodeTrueNorth':
       case 'NorthNode':
       case 'TrueNode':
@@ -91,6 +97,7 @@ class SVG {
       case this.settings.SYMBOL_SNODE:
         return this.snode(x, y)
       case this.settings.SYMBOL_FORTUNE:
+      case 'PartOfFortune':
         return this.fortune(x, y)
       case this.settings.SYMBOL_ARIES:
         return this.aries(x, y)
@@ -611,6 +618,66 @@ class SVG {
   }
 
   /*
+ * Juno path - Asteroid symbol
+ * @private
+ *
+ * @param {int} x
+ * @param {int} y
+ *
+ * @return {SVGPathElement} path
+ */
+  juno(x: number, y: number): Element {
+    // center symbol
+    const xShift = 0 // px
+    const yShift = -9 // px - adjusted to move closer to wheel
+    x = Math.round(x + (xShift * this.settings.SYMBOL_SCALE))
+    y = Math.round(y + (yShift * this.settings.SYMBOL_SCALE))
+
+    const wrapper = document.createElementNS(this.context.root.namespaceURI, 'g')
+    // Scale down by 0.5 and flip vertically (scale -1 on Y axis)
+    wrapper.setAttribute('transform', 'translate(' + x + ',' + y + ') scale(' + (this.settings.SYMBOL_SCALE * 0.5) + ',' + (this.settings.SYMBOL_SCALE * -0.5) + ')')
+
+    const node = document.createElementNS(this.context.root.namespaceURI, 'path')
+    // Juno symbol - scepter with star on top (filled, half size, flipped)
+    node.setAttribute('d', 'm0,0 0,-3.53 -2.58,2.58 -2.57,2.57 -1.13,-1.13 -1.12,-1.12 2.55,-2.55 2.55,-2.55 -3.62,-0.05 -3.63,-0.05 -0.03,-1.57 -0.03,-1.58 3.68,0 3.68,0 -2.6,-2.6 -2.6,-2.6 1.13,-1.12 1.13,-1.11 2.6,2.59 2.59,2.59 0,-8.13 0,-8.12 -2.7,0 -2.7,0 0,-1.6 0,-1.6 2.7,0 2.7,0 0,-3.2 0,-3.2 1.6,0 1.6,0 0,3.2 0,3.2 2.75,0 2.76,0 -0.03,1.57 -0.03,1.58 -2.72,0.03 -2.73,0.02 0,8.13 0,8.12 2.6,-2.6 2.6,-2.6 1.12,1.13 1.13,1.12 -2.53,2.53 -2.52,2.6 0,0.04 3.6,0.07 3.6,0.07 0,1.6 0,1.6 -3.67,0 -3.68,0 2.58,2.58 2.57,2.57 -1.12,1.13 -1.13,1.12 -2.57,-2.57 -2.58,-2.58 0,3.53 0,3.52 -1.6,0 -1.6,0 0,-3.52 z')
+    node.setAttribute('stroke', 'none')
+    node.setAttribute('fill', this.settings.POINTS_COLOR)
+    wrapper.appendChild(node)
+
+    return wrapper
+  }
+
+  /*
+ * Vesta path - Asteroid symbol
+ * @private
+ *
+ * @param {int} x
+ * @param {int} y
+ *
+ * @return {SVGPathElement} path
+ */
+  vesta(x: number, y: number): Element {
+    // center symbol - shift right to align vertical bar with V shapes
+    const xShift = 2.2 // px - move vertical bar to center of V shapes
+    const yShift = -9 // px - adjusted to move closer to wheel
+    x = Math.round(x + (xShift * this.settings.SYMBOL_SCALE))
+    y = Math.round(y + (yShift * this.settings.SYMBOL_SCALE))
+
+    const wrapper = document.createElementNS(this.context.root.namespaceURI, 'g')
+    // Scale down by 0.25 (half size) and flip vertically (scale -1 on Y axis)
+    wrapper.setAttribute('transform', 'translate(' + x + ',' + y + ') scale(' + (this.settings.SYMBOL_SCALE * 0.25) + ',' + (this.settings.SYMBOL_SCALE * -0.25) + ')')
+
+    const node = document.createElementNS(this.context.root.namespaceURI, 'path')
+    // Vesta symbol - hearth/flame symbol with three nested V shapes (filled)
+    node.setAttribute('d', 'm0,0 -0.4,-0.4 0,-14.6 4.4,0 4.4,0 0,14.5 0,14.5 -4.3,0.1 -4.4,0.1 0,-14.2 z m-6.7,-10 0,-4.4 3.4,0 3.4,0 9.1,-8.6 c5,-4.7 9.2,-8.6 9.2,-8.6 0.1,0 4.2,3.9 9.2,8.6 l9.1,8.6 3.4,0 3.4,0 0,4.4 0,4.3 -5.1,0.1 -5.1,0 -7.2,-7 c-4,-3.8 -7.3,-7 -7.4,-7 -0.1,0 -3.5,3.1 -7.5,7 l-7.3,7 -5.2,0 -5.2,0 0,-4.4 z m-6.5,-19.7 c0,-0.1 0,-4.3 0,-4.3 l7.8,0 7.8,0 7.9,-7 c4.4,-3.9 8,-7.1 8.1,-7.1 0.1,0 3.7,3.2 8.1,7.1 l7.9,7 7.8,0 7.9,0 -0.1,4.2 0,4.2 -9.5,0.1 -9.4,0 -6.2,-5.6 c-3.4,-3.1 -6.3,-5.6 -6.3,-5.6 -0.1,0 -3,2.5 -6.4,5.6 l-6.3,5.6 -9.4,0 c-5.1,0 -9.3,-0.1 -9.5,-0.2 z')
+    node.setAttribute('stroke', 'none')
+    node.setAttribute('fill', this.settings.POINTS_COLOR)
+    wrapper.appendChild(node)
+
+    return wrapper
+  }
+
+  /*
  * NNode path
  * @private
  *
@@ -1089,23 +1156,21 @@ class SVG {
  * Draw As symbol
  */
   ascendant(x: number, y: number): Element {
-    // minimal shifts to keep glyph centered
-    const xShift = 0
-    const yShift = 0
+    // center symbol
+    const xShift = -10 // px - shift 10px to the left
+    const yShift = -9 // px - adjusted to move closer to wheel
     x = Math.round(x + (xShift * this.settings.SYMBOL_SCALE))
     y = Math.round(y + (yShift * this.settings.SYMBOL_SCALE))
 
-    // Use simple translation and scale - don't move the origin to compensate for scale
-    const transform = 'translate(' + x + ',' + y + ') scale(' + this.settings.SYMBOL_SCALE + ')'
-
     const wrapper = document.createElementNS(this.context.root.namespaceURI, 'g')
-    wrapper.setAttribute('transform', transform)
+    // Scale down by 0.33 (33% reduction) and flip vertically
+    wrapper.setAttribute('transform', 'translate(' + x + ',' + y + ') scale(' + (this.settings.SYMBOL_SCALE * 0.33) + ',' + (this.settings.SYMBOL_SCALE * -0.33) + ')')
 
     const node = document.createElementNS(this.context.root.namespaceURI, 'path')
-    node.setAttribute('d', 'm 0, 0 -0.563078,-1.1261527 -1.689228,-0.5630765 -1.689229,0 -1.68923,0.5630765 -0.563076,1.1261527 0.563076,1.12615272 1.126154,0.56307636 2.815381,0.56307635 1.126152,0.56307647 0.563078,1.1261526 0,0.5630763 -0.563078,1.1261528 -1.689228,0.5630764 -1.689229,0 -1.68923,-0.5630764 -0.563076,-1.1261528 m -6.756916,-10.135374 -4.504611,11.8246032 m 4.504611,-11.8246032 4.504611,11.8246032 m -7.3199925,-3.94153457 5.6307625,0')
-    node.setAttribute('stroke', this.settings.SYMBOL_AXIS_FONT_COLOR)
-    node.setAttribute('stroke-width', (this.settings.SYMBOL_AXIS_STROKE * this.settings.SYMBOL_SCALE).toString())
-    node.setAttribute('fill', 'none')
+    // AS symbol - Arrow pointing up (Ascendant)
+    node.setAttribute('d', 'm-0.7,3.3 c-0.1,-0.2 -1.6,-5.7 -14.1,-52.2 -3.5,-13.1 -6.9,-25.4 -7.4,-27.4 -0.5,-2 -0.9,-3.6 -0.9,-3.7 0.2,-0.2 3.6,-0.4 6.9,-0.4 3.7,0 3.8,0 3.9,0.4 0.1,0.2 0.8,3.4 1.6,6.9 0.8,3.6 1.7,6.8 1.9,7.2 0.6,1.1 1.2,1.4 3,1.7 0.9,0.1 6.5,0.2 13.2,0.1 12.5,-0.1 12,0 12.5,-1.2 0.1,-0.3 1.1,-3.4 2.2,-7 3,-9.7 3,-9.6 3.5,-10.3 0.8,-1 2,-1.6 4.7,-2.2 4,-1 6.5,-1.3 10.7,-1.3 11.9,0 21.2,3.5 29.1,11 2.1,2 3.4,3.6 4.3,5.4 2,4 1.6,11.7 -0.8,17 -2.3,4.8 -5.8,8.2 -12.6,11.9 -2.7,1.5 -12.3,6.9 -15.2,8.6 -3,1.7 -6,5.4 -7.1,8.5 -1.4,3.9 -0.3,8.7 2.8,12 2,2.1 3.8,2.9 8.8,4 1.9,0.4 3.2,0.5 6.2,0.6 3.9,0.1 5.6,0 10.6,-0.8 1.4,-0.2 2.6,-0.4 2.7,-0.3 0,0.1 0.4,2.1 0.7,4.5 0.5,3.3 0.6,4.4 0.5,4.6 -0.6,0.7 -9.2,1.4 -13.7,1.2 -12.7,-0.6 -21,-3.8 -25.6,-9.9 -1.4,-1.9 -2.2,-3.3 -2.8,-5.3 -1.2,-3.9 -0.4,-10.4 1.9,-15.2 2,-4.2 4.1,-6.5 9.3,-9.9 4.8,-3.2 8.7,-5.5 12.4,-7.5 9.3,-4.9 11.9,-7.1 13.4,-11.1 0.7,-2 0.7,-4.9 0.1,-7.2 -1.9,-6.6 -6.9,-10.1 -17.3,-11.9 -5.7,-1 -12.7,0.1 -14.8,2.2 -0.7,0.8 -0.9,1.1 -1.7,4.1 -0.5,1.8 -3.7,13 -7,24.8 -11.4,40.4 -12.5,44.3 -13,46 l-0.4,1.7 -2,0.1 c-4.2,0.2 -9.9,0.3 -10,0.2 z m7.3,-22.7 c1,-0.4 0.9,-0.2 5.9,-17.1 4.2,-14.3 4.4,-15.1 3.6,-16.2 -0.7,-0.9 -1.6,-1.1 -5.7,-1.2 -4.2,-0.1 -13.8,0.3 -14.8,0.6 -1.1,0.4 -1.1,0.8 0,5.1 1,3.8 6.6,23.8 7.4,26.3 0.5,1.4 0.8,1.9 1.7,2.4 0.7,0.4 1.3,0.5 2,0.2 z')
+    node.setAttribute('stroke', 'none')
+    node.setAttribute('fill', this.settings.SYMBOL_AXIS_FONT_COLOR)
 
     wrapper.appendChild(node)
 
@@ -1140,22 +1205,20 @@ class SVG {
  */
   mediumCoeli(x: number, y: number): Element {
     // center symbol
-    const xShift = 19 // px
-    const yShift = -4 // px
+    const xShift = 0
+    const yShift = -9 // px - adjusted to move closer to wheel
     x = Math.round(x + (xShift * this.settings.SYMBOL_SCALE))
     y = Math.round(y + (yShift * this.settings.SYMBOL_SCALE))
 
-    // Use simple translation and scale - don't move the origin to compensate for scale
-    const transform = 'translate(' + x + ',' + y + ') scale(' + this.settings.SYMBOL_SCALE + ')'
-
     const wrapper = document.createElementNS(this.context.root.namespaceURI, 'g')
-    wrapper.setAttribute('transform', transform)
+    // Scale down by 0.22 (33% more reduction from 0.33) and flip vertically
+    wrapper.setAttribute('transform', 'translate(' + x + ',' + y + ') scale(' + (this.settings.SYMBOL_SCALE * 0.22) + ',' + (this.settings.SYMBOL_SCALE * -0.22) + ')')
 
     const node = document.createElementNS(this.context.root.namespaceURI, 'path')
-    node.setAttribute('d', 'm 0, 0 -1.004085,-1.0040845 -1.004084,-0.5020423 -1.506127,0 -1.004085,0.5020423 -1.004084,1.0040845 -0.502043,1.50612689 0,1.00408458 0.502043,1.50612683 1.004084,1.0040846 1.004085,0.5020423 1.506127,0 1.004084,-0.5020423 1.004085,-1.0040846 m -17.57148,-9.0367612 0,10.5428881 m 0,-10.5428881 4.016338,10.5428881 m 4.016338,-10.5428881 -4.016338,10.5428881 m 4.016338,-10.5428881 0,10.5428881')
-    node.setAttribute('stroke', this.settings.SYMBOL_AXIS_FONT_COLOR)
-    node.setAttribute('stroke-width', (this.settings.SYMBOL_AXIS_STROKE * this.settings.SYMBOL_SCALE).toString())
-    node.setAttribute('fill', 'none')
+    // MC symbol - Medium Coeli
+    node.setAttribute('d', 'm1,66.4 c-1.6,-0.1 -5.1,-0.3 -7.6,-0.4 -5,-0.2 -5.4,-0.3 -6.3,-1.4 -0.7,-0.8 1.5,4.8 -21.5,-56.7 -4.3,-11.7 -8.1,-21.5 -8.4,-22 -0.5,-0.8 -1.5,-1.5 -2.2,-1.5 -0.8,0 -1.7,0.8 -2.4,2.2 -0.5,0.9 -4.1,12.4 -10.4,32.7 -5.4,17.3 -10.5,33.8 -11.4,36.8 -1.6,5 -2.7,8.4 -3,8.6 -0.1,0.1 -19.7,-0.9 -19.9,-1 0,0 -0.3,-26.7 -0.6,-59.3 -0.3,-32.5 -0.6,-61.7 -0.7,-64.7 l-0.1,-5.6 1.2,0.1 c1.3,0.1 11.1,0.8 13.9,1 2.7,0.2 3,0.2 3.2,0.8 0.1,0.3 -0.1,13.6 -0.5,33.3 -0.4,18.1 -0.7,35.5 -0.7,38.7 0,5.8 0,5.8 0.4,6.6 0.6,0.9 1,1.2 1.9,1 1.4,-0.3 2.4,-1.1 3,-2.7 0.2,-0.6 14.5,-48.5 16,-54 0.4,-1.4 -0.3,-1.3 7.1,-0.7 3,0.3 7.3,0.6 9.5,0.8 2.2,0.2 4.3,0.4 4.8,0.5 1,0.3 2.1,1.2 2.6,2.4 0.3,0.5 1.8,5.4 3.4,10.9 1.6,5.5 4.7,15.9 6.9,23.1 2.1,7.2 4.2,14.1 4.5,15.3 0.8,3.2 1.4,3.9 3.2,3.7 1.7,-0.2 2.4,-1.2 2.4,-3.5 0,-0.8 0.6,-10.4 1.3,-21.5 1.1,-17.5 2.3,-36 3.2,-50.9 0.1,-2.4 0.3,-4.4 0.3,-4.4 0.1,-0.1 14.6,0.9 14.7,1 0,0 -0.1,2 -0.3,4.3 -0.5,6.4 -0.5,8.9 0,9.7 0.5,0.9 1,1.2 2.4,1.5 1.7,0.3 2.6,-0.2 3.9,-2.6 1.1,-2 2.3,-3.5 3.8,-4.7 1.8,-1.4 2.3,-1.7 5.2,-2.9 9.3,-3.9 19,-5.6 30.1,-5.3 5.1,0.1 8.7,0.5 15.5,1.4 7.3,1 8.7,1.3 11.1,2.4 l1.1,0.5 -0.1,1.5 c-0.1,0.8 -0.2,3 -0.3,4.8 -0.1,2.3 -0.2,3.3 -0.4,3.4 -0.3,0.1 -4.8,-0.3 -10.2,-0.9 -9.4,-1.1 -16.4,-1 -27,0.3 -8.4,1.1 -12.9,3 -17.3,7.6 -3.2,3.4 -5.4,7.3 -8.1,14.8 -4.9,13.4 -6.4,29.6 -4,41.8 1.3,6.7 4.2,14.4 7.2,19 2.2,3.5 6,7.6 9.1,9.8 4.5,3.3 11.9,6.6 18.3,8.2 4.7,1.2 6.8,1.4 12.7,1.4 5.2,0 5.8,0 10.1,-0.7 6.5,-0.9 8.8,-1.2 8.9,-1.1 0.1,0 0.6,3 0.6,6.6 0.4,5.7 0.5,6.5 0.2,6.7 -0.2,0.1 -4.7,1.3 -6.7,1.7 -1.1,0.2 -6.3,0.9 -8.9,1.2 -4.1,0.4 -12.8,0.6 -16.8,0.3 -8.5,-0.6 -18.1,-3.7 -25.4,-8.1 -2.9,-1.8 -5.2,-3.6 -8.6,-6.8 -1.8,-1.7 -3.5,-3.2 -4,-3.4 -1.5,-0.7 -2.4,-0.5 -3,0.9 -0.3,0.8 -0.4,1.6 -0.6,6.6 -0.1,3.2 -0.3,6.9 -0.3,8.3 l-0.1,2.6 -1.5,0 c-0.8,0 -2.8,-0.1 -4.5,-0.2 z')
+    node.setAttribute('stroke', 'none')
+    node.setAttribute('fill', this.settings.SYMBOL_AXIS_FONT_COLOR)
     wrapper.appendChild(node)
 
     return wrapper
