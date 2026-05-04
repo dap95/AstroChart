@@ -68,6 +68,8 @@ declare class SVG {
     pluto(x: number, y: number): Element;
     chiron(x: number, y: number): Element;
     lilith(x: number, y: number): Element;
+    juno(x: number, y: number): Element;
+    vesta(x: number, y: number): Element;
     nnode(x: number, y: number): Element;
     snode(x: number, y: number): Element;
     fortune(x: number, y: number): Element;
